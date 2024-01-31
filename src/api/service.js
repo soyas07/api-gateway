@@ -1,5 +1,5 @@
 import express from 'express';
-import { authenticate } from '../middlewares.js';
+import { authenticate } from '../middlewares/middlewares.js';
 import { promisify } from 'util';
 import fs from 'fs';
 
