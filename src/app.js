@@ -3,15 +3,24 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 import cors from 'cors';
 
-import 'dotenv/config';
+import dotenv from 'dotenv';
 import { notFound, errorHandler } from './middlewares/middlewares.js';
 import api from './api/index.js';
+import cookieParser from 'cookie-parser';
+
+// load the environment vairables
+const env = (process.env.npm_lifecycle_event == 'dev') ? '.env.dev' : '.env';
+dotenv.config({ path: env });
 
 const app = express();
 
+app.use(cookieParser());
 app.use(morgan('dev'));
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+    origin: true,
+    credentials: true
+}));
 app.use(express.json());
 
 app.get('/', (req, res) => {

@@ -21,12 +21,32 @@ router.post('/user/login', async (req, res) => {
             res.send(validateUser.data);
 
         const tokens = await axios.post(`http://${process.env.AUTH_MICROSERVICES}:5001/api/v1/token`, { roles: ["user"] });
-        console.log(`http://${process.env.AUTH_MICROSERVICES}:5001/api/v1/token`);
-        res.send(tokens.data);
+        console.log(tokens.status);
+
+        if (tokens.status == 200) {
+            res.cookie('token', tokens.data.token, { httpOnly: true, path: '/', secure: true, maxAge: 60 * 60 * 1000, sameSite: 'strict' }); // Set the token in cookies
+            res.cookie('refreshToken', tokens.data.refreshToken, { path: '/', httpOnly: true, secure: true, maxAge: 7 * 24 * 60 * 60 * 1000, sameSite: 'strict' }); // Set the refresh token in cookies
+    
+            res.send({ message: 'ok' });
+        }
     } catch (error) {
         res.send({ message: error });
     }
 });
+
+
+router.get('/user/renewToken', async(req, res) => {
+    try {
+        const cookies = req.cookies;
+        const token = await axios.post(`http://${process.env.AUTH_MICROSERVICES}:5001/api/v1/renewToken`, cookies);
+        res.cookie('token', token.data.token, { httpOnly: true, path: '/', secure: true, maxAge: 60 * 60 * 1000, sameSite: 'strict' }); // Set the token in cookies
+        res.send({ message: 'ok' });
+    } catch (error) {
+        // console.log(error);
+        res.send({ message: error });
+    }
+});
+
 
 router.post('/user/register', async (req, res) => {
     try {
@@ -35,7 +55,8 @@ router.post('/user/register', async (req, res) => {
             res.send(validateUser.data);
 
         const tokens = await axios.post(`http://${process.env.AUTH_MICROSERVICES}:5001/api/v1/token`, { roles: ["user"] });
-        res.send({ email: req.body.email, tokens: tokens.data});
+        res.cookie('token', tokens.data.token, { httpOnly: true, path: '/', secure: true, maxAge: 60 * 60 * 1000, sameSite: 'strict' }); // Set the token in cookies
+        res.send({ message: 'ok' });
     } catch (error) {
         res.send({ message: error });
     }
