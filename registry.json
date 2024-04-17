@@ -1,0 +1,10 @@
+{
+  "services": {
+    "thirdApi": {
+      "name": "secondApi",
+      "host": "http://localhost",
+      "port": 5000,
+      "url": "http:localhost:5000"
+    }
+  }
+}
