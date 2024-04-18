@@ -65,6 +65,7 @@ router.post('/user/register', async (req, res) => {
 
         const tokens = await axios.post(`http://${process.env.AUTH_MICROSERVICES}:5001/api/v1/token`, { roles: ["user"] });
         res.cookie('token', tokens.data.token, { httpOnly: true, path: '/', secure: true, maxAge: 60 * 60 * 1000, sameSite: 'strict' }); // Set the token in cookies
+        res.cookie('refreshToken', tokens.data.refreshToken, { path: '/', httpOnly: true, secure: true, maxAge: 7 * 24 * 60 * 60 * 1000, sameSite: 'strict' }); // Set the refresh token in cookies
         res.send({ message: 'ok' });
     } catch (error) {
         res.send({ message: error });
