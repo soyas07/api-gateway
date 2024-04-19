@@ -23,6 +23,8 @@ router.post('/user/login', async (req, res) => {
     try {
         // get the user req json object
         // forwards to `user-microservices`
+        console.log(process.env.npm_lifecycle_event);
+        console.log(process.env.USER_MICROSERVICES);
         const validateUser = await axios.post(`http://${process.env.USER_MICROSERVICES}:5050/api/v1/user/login`, req.body);
         if (validateUser.data.message != 'ok') {
             console.log(validateUser.status);
