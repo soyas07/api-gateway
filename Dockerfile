@@ -16,8 +16,5 @@ COPY . .
 # Expose the port your app runs on
 EXPOSE 5000
 
-# Copy .env file into the container
-COPY .env .
-
 # Define the command to run your app
-CMD ["sh", "-c", "source .env && npm start"]
+CMD ["npm", "start"]
