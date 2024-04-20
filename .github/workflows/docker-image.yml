@@ -24,7 +24,10 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Build Docker image
-      run: docker build -t api-gateway:1.0.0 .
+      run: |
+        echo "USER_MICROSERVICES=${USER_MICROSERVICES}" > .env
+        echo "AUTH_MICROSERVICES=${AUTH_MICROSERVICES}" > .env
+        docker build -t api-gateway:1.0.0 .
 
     - name: Tag Docker image
       run: docker tag api-gateway:1.0.0 "${{ secrets.DOCKER_USERNAME }}/api-gateway:1.0.0"
