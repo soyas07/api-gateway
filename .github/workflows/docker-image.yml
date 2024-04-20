@@ -27,3 +27,11 @@ jobs:
 
     - name: Push Docker image
       run: docker push "${{ secrets.DOCKER_USERNAME }}/api-gateway:1.0.0"
+
+    - name: Clean up temporary files
+      run: |
+        # Remove temporary Docker image
+        docker rmi api-gateway:1.0.0
+        
+        # Remove Docker image tag
+        docker rmi "${{ secrets.DOCKER_USERNAME }}/api-gateway:1.0.0"
