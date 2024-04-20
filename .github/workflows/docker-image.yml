@@ -9,6 +9,10 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
+    env:
+      USER_MICROSERVICES: ${{ secrets.USER_MICROSERVICES }}
+      AUTH_MICROSERVICES: ${{ secrets.AUTH_MICROSERVICES }}
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -32,6 +36,9 @@ jobs:
       run: |
         # Remove temporary Docker image
         docker rmi api-gateway:1.0.0
-        
+
         # Remove Docker image tag
         docker rmi "${{ secrets.DOCKER_USERNAME }}/api-gateway:1.0.0"
+
+        # Remove .env file
+        rm .env
