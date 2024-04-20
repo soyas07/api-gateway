@@ -9,6 +9,7 @@ import dotenv from 'dotenv';
 const env = (process.env.npm_lifecycle_event == 'dev') ? '.env.dev' : '.env';
 dotenv.config({ path: env });
 
+console.log(process.env);
 
 const router = express.Router();
 
