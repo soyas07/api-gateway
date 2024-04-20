@@ -26,7 +26,7 @@ jobs:
     - name: Build Docker image
       run: |
         echo "USER_MICROSERVICES=${USER_MICROSERVICES}" > .env
-        echo "AUTH_MICROSERVICES=${AUTH_MICROSERVICES}" > .env
+        echo "AUTH_MICROSERVICES=${AUTH_MICROSERVICES}" >> .env
         docker build -t api-gateway:1.0.0 .
 
     - name: Tag Docker image
