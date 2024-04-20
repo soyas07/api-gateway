@@ -39,6 +39,3 @@ jobs:
 
         # Remove Docker image tag
         docker rmi "${{ secrets.DOCKER_USERNAME }}/api-gateway:1.0.0"
-
-        # Remove .env file
-        rm .env
