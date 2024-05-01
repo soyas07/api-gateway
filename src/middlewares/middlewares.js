@@ -46,4 +46,19 @@ export const authenticate = (requiredRoles) =>  {
         });
     }
 }
+
+// circuit breaker middleware
+export const circuitBreakerMiddleware = (circuitBreaker) => {
+    return (req, res, next) => {
+        circuitBreaker.execute(async () => {
+            try {
+                await next(); // Continue to the next middleware or route handler
+            } catch (error) {
+                next(error); // Pass any errors to the error handler middleware
+            }
+        }).catch(error => {
+            res.status(500).json({ error: error.message });
+        });
+    };
+};
   
