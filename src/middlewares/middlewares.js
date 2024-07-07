@@ -1,4 +1,11 @@
 import jwt from 'jsonwebtoken';
+import axios from 'axios';
+import dotenv from 'dotenv';
+
+// load the environment vairables
+const env = (process.env.npm_lifecycle_event == 'dev') ? '.env.dev' : '.env';
+dotenv.config({ path: env });
+
 
 export function notFound(req, res, next) {
     res.status(404);
@@ -58,6 +65,41 @@ export const circuitBreakerMiddleware = (circuitBreaker) => {
             }
         }).catch(error => {
             res.status(500).json({ error: error.message });
+        });
+    };
+};
+
+
+export const authMiddleware = (circuitBreaker) => {
+    return async (req, res, next) => {
+        circuitBreaker.execute(async () => {
+            try {
+                const { token, refreshToken } = req.cookies;
+
+                if (token) {
+                    const authorize = await axios.post(`http://${process.env.AUTH_MICROSERVICES}:5001/api/v1/auth`, null, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    req.user = authorize.data; // Attach the user data to the request object
+                    next(); // Proceed to the next middleware or route handler
+                } else {
+                    if (refreshToken) {
+                        const getToken = await axios.post(`http://${process.env.AUTH_MICROSERVICES}:5001/api/v1/renewToken`, { refreshToken });
+                        const newToken = getToken.data;
+                        res.cookie('token', newToken.token, { httpOnly: true, path: '/', secure: true, maxAge: 60 * 60 * 1000, sameSite: 'strict' }); // Set the token in cookies
+                        req.user = newToken.user; // Attach the user data to the request object
+                        next(); // Proceed to the next middleware or route handler
+                    } else {
+                        res.status(403).send({ message: 'Access forbidden' });
+                    }
+                }
+            } catch (error) {
+                res.status(500).json({ message: error.message });
+            }
+        }).catch(error => {
+            res.status(500).json({ message: error.message });
         });
     };
 };
