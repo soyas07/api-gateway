@@ -5,6 +5,9 @@ import axios from 'axios';
 
 import dotenv from 'dotenv';
 import createCircuitBreaker from '../middlewares/circuitBreaker.js';
+import { auth } from '../controllers/auth.js';
+import { authMiddleware} from '../middlewares/middlewares.js';
+
 
 // load the environment vairables
 const env = (process.env.npm_lifecycle_event == 'dev') ? '.env.dev' : '.env';
@@ -27,6 +30,19 @@ router.get('/', (req, res) => {
         res.status(500).json({ error: error.message });
     });
 });
+
+
+// get a user info by id
+router.get('/user', authMiddleware(circuitBreaker), async (req, res) => {
+    try {
+        const { id } = req.query;
+        const user = await axios(`http://${process.env.USER_MICROSERVICES}:5050/api/v1/user?id=${id}`);
+        res.send(user.data);
+    } catch (error) {
+        res.status(500).send({ message: error.message });
+    }
+});
+
 
 // login and registration user routes
 router.post('/user/login', async (req, res) => {
@@ -94,36 +110,7 @@ router.post('/user/register', async (req, res) => {
 })
 
 
-router.get('/auth', async (req, res) => {
-    circuitBreaker.execute(async () => {
-        try {
-            const { token, refreshToken } = req.cookies;
-
-            if (token) {
-                const authorize = await axios.post(`http://${process.env.AUTH_MICROSERVICES}:5001/api/v1/auth`, null, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                })
-                const response = await authorize.data;
-                res.send(response);
-            } else {
-                if (refreshToken) {
-                    const getToken = await axios.post(`http://${process.env.AUTH_MICROSERVICES}:5001/api/v1/renewToken`, { refreshToken });
-                    const newToken = await getToken.data;
-                    res.cookie('token', newToken.token, { httpOnly: true, path: '/', secure: true, maxAge: 60 * 60 * 1000, sameSite: 'strict' }); // Set the token in cookies
-                    res.send({ message: 'ok' });
-                } else {
-                    res.status(403).send({ message: 'Access forbidden' });
-                }
-            }
-        } catch (error) {
-            res.status(500).json({ message: error.message });
-        }
-    }).catch(error => {
-        res.status(500).json({ message: error.message });
-    });
-})
+router.get('/auth', auth);
 
 router.use('/emojis', emojis);
 router.use('/service', service);
