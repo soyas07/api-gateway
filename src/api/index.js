@@ -63,7 +63,7 @@ router.post('/user/login', async (req, res) => {
                 res.cookie('token', tokens.data.token, { httpOnly: true, path: '/', secure: true, maxAge: 60 * 60 * 1000, sameSite: 'strict' }); // Set the token in cookies
                 res.cookie('refreshToken', tokens.data.refreshToken, { path: '/', httpOnly: true, secure: true, maxAge: 7 * 24 * 60 * 60 * 1000, sameSite: 'strict' }); // Set the refresh token in cookies
 
-                return res.send({ message: 'ok' });
+                return res.send(req.body);
             }
 
         });
