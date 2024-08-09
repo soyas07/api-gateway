@@ -51,7 +51,7 @@ router.post('/user/login', async (req, res) => {
             // get the user req json object
             // forwards to `user-microservices`
             const validateUser = await axios.post(`http://${process.env.USER_MICROSERVICES}:5050/api/v1/user/login`, req.body);
-            if (validateUser.data.message != 'ok') {
+            if (!validateUser.data) {
                 console.log(validateUser.status);
                 res.status(validateUser.status).send(validateUser.data);
             }
@@ -63,7 +63,7 @@ router.post('/user/login', async (req, res) => {
                 res.cookie('token', tokens.data.token, { httpOnly: true, path: '/', secure: true, maxAge: 60 * 60 * 1000, sameSite: 'strict' }); // Set the token in cookies
                 res.cookie('refreshToken', tokens.data.refreshToken, { path: '/', httpOnly: true, secure: true, maxAge: 7 * 24 * 60 * 60 * 1000, sameSite: 'strict' }); // Set the refresh token in cookies
 
-                return res.send(req.body);
+                return res.send(validateUser.data);
             }
 
         });
